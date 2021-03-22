@@ -4,6 +4,7 @@ import com.learn.redis.jedis.bloom.BloomFilterStrategies;
 import com.learn.redis.jedis.bloom.BloomFilter;
 import com.learn.redis.jedis.bloom.bitarr.BitArray;
 import com.learn.redis.jedis.bloom.bitarr.JedisBitArray;
+import com.learn.redis.jedis.bloom.bitarr.LockFreeBitArray;
 import com.learn.redis.jedis.pool.RedisPool;
 
 import java.nio.charset.StandardCharsets;
@@ -34,6 +35,7 @@ public class RedisBloomFilterTest {
         int expectedInsertions = 100_0000;
         double fpp = 0.000_0001;
         BitArray bitArray = new JedisBitArray(RedisPool.pool, "test");
+        //BitArray bitArray = new LockFreeBitArray();
 
         BloomFilter<String> bloomFilter = BloomFilter.create(bitArray, (from, into) -> {
             into.putString(from, StandardCharsets.UTF_8);

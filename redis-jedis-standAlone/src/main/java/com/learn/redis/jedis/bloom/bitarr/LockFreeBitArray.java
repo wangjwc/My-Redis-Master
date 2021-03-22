@@ -35,6 +35,10 @@ public final class LockFreeBitArray implements BitArray {
     // 为1的bit位数
     private LongAddable bitCount;
 
+    public LockFreeBitArray() {
+
+    }
+
     // Used by serialization
     LockFreeBitArray(long[] data) {
         checkArgument(data.length > 0, "data length is zero!");
