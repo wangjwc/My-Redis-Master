@@ -98,6 +98,9 @@ public class JedisBitArray extends AbstractRedisBitArray {
         }
 
         return execute(jedis -> {
+            if (!jedis.exists(key)) {
+                throw new RuntimeException("BitArray not found, key="+ key);
+            }
             Pipeline pipeline = jedis.pipelined();
             for (long index : indices) {
                 pipeline.getbit(key, index);
