@@ -1,14 +1,10 @@
 package com.learn.redis.jedis.bloom.bitarr;
 
-import redis.clients.jedis.BitOP;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Pipeline;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by jiangtiteng
@@ -44,57 +40,80 @@ public class JedisBitArray extends AbstractRedisBitArray {
     }
 
     @Override
+    public boolean batchSupport() {
+        return true;
+    }
+
+    @Override
+    public void reset() {
+        try {
+            execute(jedis -> jedis.del(key));
+        } catch (Exception e) {
+            throw new RuntimeException("del bit error", e);
+        }
+    }
+
+    @Override
     public boolean set(long index) throws Exception {
-        boolean result;
-        result = execute(jedis -> {
-            // setbit命令返回bit位原本的值，如果为false说明是第一次设置
-            boolean oldValue = jedis.setbit(key, index, true);
-            return !oldValue;
-        });
-        return result;
+//        boolean result;
+//        result = execute(jedis -> {
+//            // setbit命令返回bit位原本的值，如果为false说明原本是0，返回true
+//            boolean oldValue = jedis.setbit(key, index, true);
+//            return !oldValue;
+//        });
+//        return result;
+        throw new RuntimeException("not support");
     }
 
     @Override
     public boolean get(long index) throws Exception {
-        return (Boolean) execute(jedis -> jedis.getbit(key, index));
+        //return (Boolean) execute(jedis -> jedis.getbit(key, index));
+        throw new RuntimeException("not support");
     }
 
     @Override
-    public List<Boolean> batchGet(List<Long> indexs) throws Exception {
-        if (null == indexs || indexs.isEmpty()) {
-            return Collections.emptyList();
+    public boolean[] batchSet(long[] indices) throws Exception {
+        if (null == indices || indices.length == 0) {
+            return new boolean[0];
         }
 
         return execute(jedis -> {
             Pipeline pipeline = jedis.pipelined();
-            indexs.forEach(index -> pipeline.getbit(key, index));
-            List<Object> result = pipeline.syncAndReturnAll();
-            return result.stream().map(o -> {
-                if (o instanceof Boolean) {
-                    return (Boolean)o;
-                }
-                return false;
-            }).collect(Collectors.toList());
+            for (long index : indices) {
+                pipeline.setbit(key, index, true);
+            }
+            boolean[] arr = bitOpResult(pipeline.syncAndReturnAll());
+            for (int i = 0; i < arr.length; i++) {
+                // setbit命令返回bit位原本的值，如果为false说明原本是0，返回true
+                arr[i] = !arr[i];
+            }
+            return arr;
         });
     }
 
     @Override
-    public List<Boolean> batchSet(List<Long> indices) throws Exception {
-        if (null == indices || indices.isEmpty()) {
-            return Collections.emptyList();
+    public boolean[] batchGet(long[] indices) throws Exception {
+        if (null == indices || indices.length == 0) {
+            return new boolean[0];
         }
 
         return execute(jedis -> {
             Pipeline pipeline = jedis.pipelined();
-            indices.forEach(index -> pipeline.setbit(key, index, true));
-            List<Object> result = pipeline.syncAndReturnAll();
-
-            return result.stream().map(o -> {
-                if (o instanceof Boolean) {
-                    return (Boolean)o;
-                }
-                return false;
-            }).collect(Collectors.toList());
+            for (long index : indices) {
+                pipeline.getbit(key, index);
+            }
+            return bitOpResult(pipeline.syncAndReturnAll());
         });
+    }
+
+
+
+    boolean[] bitOpResult(List<Object> list) {
+        boolean[] res = new boolean[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            Object o = list.get(i);
+            res[i] = (o instanceof Boolean) ? (Boolean)o : false;
+        }
+        return res;
     }
 }

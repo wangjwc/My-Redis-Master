@@ -70,6 +70,14 @@ public class BloomFilter<T> {
     }
 
     /**
+     * 清空过滤器
+     * @return
+     */
+    public void reset() {
+        bits.reset();
+    }
+
+    /**
      * 向过滤器添加元素（添加后，调用mightContain时传相同元素则肯定返回true）
      * @return 如果返回true，则说明元素肯定是第一次添加，如果返回false则无法确定元素是否已经添加过
      */
@@ -83,6 +91,15 @@ public class BloomFilter<T> {
      */
     public boolean mightContain(T object) throws Exception {
         return strategy.mightContain(object, funnel, numHashFunctions, bits);
+    }
+
+    /**
+     * bit数量统计
+     * @return
+     * @throws Exception
+     */
+    public long bitCount() throws Exception {
+        return bits.bitCount();
     }
 
     /**

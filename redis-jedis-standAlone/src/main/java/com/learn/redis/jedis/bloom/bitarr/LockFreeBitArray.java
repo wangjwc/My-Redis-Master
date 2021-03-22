@@ -10,6 +10,7 @@ import com.google.common.primitives.Ints;
 import com.learn.redis.jedis.bloom.hash.LongAddable;
 import com.learn.redis.jedis.bloom.hash.LongAddables;
 import org.apache.commons.collections4.CollectionUtils;
+import org.checkerframework.checker.units.qual.A;
 
 import javax.annotation.Nullable;
 import java.math.RoundingMode;
@@ -57,29 +58,27 @@ public final class LockFreeBitArray implements BitArray {
     }
 
     @Override
-    public List<Boolean> batchSet(List<Long> indices) throws Exception {
-        if (CollectionUtils.isEmpty(indices)) {
-            return Collections.emptyList();
-        }
-
-        List<Boolean> res = new ArrayList<>(indices.size());
-        for (Long index : indices) {
-            res.add(set(index));
-        }
-        return res;
+    public boolean batchSupport() {
+        return false;
     }
 
     @Override
-    public List<Boolean> batchGet(List<Long> indices) throws Exception {
-        if (CollectionUtils.isEmpty(indices)) {
-            return Collections.emptyList();
+    public void reset() {
+        if (null != this.data) {
+            long bitSize = bitSize();
+            this.data =
+                    new AtomicLongArray(Ints.checkedCast(LongMath.divide(bitSize, 64, RoundingMode.CEILING)));
         }
+    }
 
-        List<Boolean> res = new ArrayList<>(indices.size());
-        for (Long index : indices) {
-            res.add(get(index));
-        }
-        return res;
+    @Override
+    public boolean[] batchSet(long[] indices) throws Exception {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public boolean[] batchGet(long[] indices) throws Exception {
+        throw new RuntimeException();
     }
 
     /**

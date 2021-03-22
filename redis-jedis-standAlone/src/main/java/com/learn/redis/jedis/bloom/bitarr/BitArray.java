@@ -1,7 +1,5 @@
 package com.learn.redis.jedis.bloom.bitarr;
 
-import java.util.List;
-
 /**
  * Created by jiangtiteng
  */
@@ -11,6 +9,10 @@ public interface BitArray {
     long bitSize();
 
     long bitCount() throws Exception;
+
+    boolean batchSupport();
+
+    void reset();
 
     /**
      * 设置指定bit位为1，如果原本bit位是0则返回true，否则返回false
@@ -26,7 +28,19 @@ public interface BitArray {
      */
     boolean get(long index) throws Exception;
 
-    List<Boolean> batchSet(List<Long> indices) throws Exception;
+    /**
+     * 设置指定bit位为1，如果原本bit位是0则返回true，否则返回false
+     * @param indices
+     * @return
+     * @throws Exception
+     */
+    boolean[] batchSet(long[] indices) throws Exception;
 
-    List<Boolean> batchGet(List<Long> indices) throws Exception;
+    /**
+     * 如果指定bit为为1，返回true，否则返回false
+     * @param indices
+     * @return
+     * @throws Exception
+     */
+    boolean[] batchGet(long[] indices) throws Exception;
 }
