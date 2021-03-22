@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 高->低  : ERROR/WARN/INFO/DEBUG/TRACE,ch.qos.logback.classic.Level-->
+<!-- 默认pattern模板定义请看 : ch.qos.logback.classic.PatternLayout -->
+<!-- %-5p 表示最少输出5个字符（这里是日志级别字符串），不足五个则补全-->
+<!-- 
+	自定义pattern请实现ClassicConvert，然后
+	public class MyPatternLayout extends PatternLayout {  
+	    static { 
+	        defaultConverterMap.put("my",myConvert.class.getName());  
+	    } 
+	}
+-->
+<configuration>
+	<property name="log.base" value="./logs/settle" />
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>
+				%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c{36}.%M[%L] - %m%n
+			</pattern>
+		</encoder>
+	</appender>
+	
+	<!--<appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${log.base}.log</File>
+		<Encoding>UTF-8</Encoding>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${log.base}.log.%d{yyyy-MM-dd}</FileNamePattern>
+		</rollingPolicy>
+		<encoder>
+			<pattern>
+				%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c{36}.%M[%L] - %m%n
+			</pattern>
+		</encoder>
+	</appender>-->
+
+	
+	<logger name="org.hibernate.SQL" level="DEBUG" />
+	<root level="INFO">
+		<appender-ref ref="stdout" />
+		<!--<appender-ref ref="logfile" />-->
+	</root>
+
+</configuration>
