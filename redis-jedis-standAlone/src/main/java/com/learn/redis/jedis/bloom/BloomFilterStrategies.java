@@ -3,7 +3,10 @@ package com.learn.redis.jedis.bloom;
 import com.google.common.hash.Funnel;
 import com.google.common.hash.Hashing;
 import com.learn.redis.jedis.bloom.bitarr.BitArray;
+import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -55,12 +58,43 @@ public enum BloomFilterStrategies implements Strategy {
         }
 
         @Override
+        public <T> void batchPut(List<T> data, int batchBytes, Funnel<? super T> funnel, int numHashFunctions, BitArray bits) throws Exception {
+            if (!bits.batchSupport()) {
+                throw new RuntimeException("bit array not support batch operate!");
+            }
+
+            if (CollectionUtils.isEmpty(data)) {
+                return;
+            }
+
+            if (batchBytes < 1024) {
+                batchBytes = 1024;
+            }
+
+            int totalElementNum = data.size();
+            int batchElementNum = batchBytes/(8 * numHashFunctions);
+            for (int i = 0; i < totalElementNum; i+=batchElementNum) {
+                int size = i + batchElementNum > totalElementNum ? (totalElementNum - i) : batchElementNum;
+
+                List<Long> indices = new ArrayList<>(size * numHashFunctions);
+                for (int j=0; j<size; j++) {
+                    T d = data.get(i + j);
+                    computeHashIndex(funnel, d, numHashFunctions, bits.bitSize(), (ii, hashIndex) -> {
+                        indices.add(hashIndex);
+                        return true;
+                    });
+                }
+                bits.batchSet(indices.toArray(new Long[0]));
+            }
+        }
+
+        @Override
         public <T> boolean put(
                 T object, Funnel<? super T> funnel, int numHashFunctions, BitArray bits) throws Exception {
             /*
              * K次hash
              */
-            long[] indices = new long[numHashFunctions];
+            Long[] indices = new Long[numHashFunctions];
             computeHashIndex(funnel, object, numHashFunctions, bits.bitSize(), (i, hashIndex) -> {
                 indices[i] = hashIndex;
                 return true;
@@ -84,7 +118,7 @@ public enum BloomFilterStrategies implements Strategy {
         public <T> boolean mightContain(
                 T object, Funnel<? super T> funnel, int numHashFunctions, BitArray bits) throws Exception {
             if (bits.batchSupport()) {
-                long[] indices = new long[numHashFunctions];
+                Long[] indices = new Long[numHashFunctions];
                 /*
                  * K次hash
                  */

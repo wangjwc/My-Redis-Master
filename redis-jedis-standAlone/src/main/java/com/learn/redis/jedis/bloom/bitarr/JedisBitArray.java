@@ -72,7 +72,7 @@ public class JedisBitArray extends AbstractRedisBitArray {
     }
 
     @Override
-    public boolean[] batchSet(long[] indices) throws Exception {
+    public boolean[] batchSet(Long[] indices) throws Exception {
         if (null == indices || indices.length == 0) {
             return new boolean[0];
         }
@@ -92,7 +92,7 @@ public class JedisBitArray extends AbstractRedisBitArray {
     }
 
     @Override
-    public boolean[] batchGet(long[] indices) throws Exception {
+    public boolean[] batchGet(Long[] indices) throws Exception {
         if (null == indices || indices.length == 0) {
             return new boolean[0];
         }

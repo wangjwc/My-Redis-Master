@@ -5,6 +5,7 @@ import com.google.common.math.DoubleMath;
 import com.learn.redis.jedis.bloom.bitarr.BitArray;
 
 import java.math.RoundingMode;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -75,6 +76,15 @@ public class BloomFilter<T> {
      */
     public void reset() {
         bits.reset();
+    }
+
+    /**
+     * 批量添加元素
+     * @param initData
+     * @param batchBytes
+     */
+    public void batchPut(List<T> initData, int batchBytes) throws Exception {
+        strategy.batchPut(initData, batchBytes, funnel, numHashFunctions, bits);
     }
 
     /**

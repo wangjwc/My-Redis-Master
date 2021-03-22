@@ -33,7 +33,8 @@ public class RedisBloomFilterTest {
          * fpp=0.0000001
          */
         int expectedInsertions = 100_0000;
-        double fpp = 0.000_0001;
+        //double fpp = 0.000_0001;
+        double fpp = 0.03;
         BitArray bitArray = new JedisBitArray(RedisPool.pool, "test");
         //BitArray bitArray = new LockFreeBitArray();
 
@@ -47,12 +48,17 @@ public class RedisBloomFilterTest {
         System.out.println("prepare data");
 
         long t1 = System.currentTimeMillis();
-        for (String s : list) {
-            boolean result = bloomFilter.put(s);
-            if (!result) {
-                System.out.println("repeat element find ==> " + s);
+        if (bitArray.batchSupport()) {
+            bloomFilter.batchPut(list, 1024);
+        } else {
+            for (String s : list) {
+                boolean result = bloomFilter.put(s);
+                if (!result) {
+                    System.out.println("repeat element find ==> " + s);
+                }
             }
         }
+
         double duration = (System.currentTimeMillis() - t1);
         System.out.printf("put time total=%s, avg=%s \n", duration, (duration/totalElement));
 

@@ -76,12 +76,12 @@ public final class LockFreeBitArray implements BitArray {
     }
 
     @Override
-    public boolean[] batchSet(long[] indices) throws Exception {
+    public boolean[] batchSet(Long[] indices) throws Exception {
         throw new RuntimeException();
     }
 
     @Override
-    public boolean[] batchGet(long[] indices) throws Exception {
+    public boolean[] batchGet(Long[] indices) throws Exception {
         throw new RuntimeException();
     }
 

@@ -3,11 +3,24 @@ package com.learn.redis.jedis.bloom;
 import com.google.common.hash.Funnel;
 import com.learn.redis.jedis.bloom.bitarr.BitArray;
 
+import java.util.List;
+
 /**
  * @author wangjingwang
  * @version v1.0
  */
 public interface Strategy extends java.io.Serializable {
+
+    /**
+     * 批量添加数据（必须指定一次传输的字节大小）
+     * @param dataList
+     * @param batchBytes
+     * @param funnel
+     * @param numHashFunctions
+     * @param bits
+     * @param <T>
+     */
+    <T> void batchPut(List<T> dataList, int batchBytes, Funnel<? super T> funnel, int numHashFunctions, BitArray bits) throws Exception;
 
     /**
      * Sets {@code numHashFunctions} bits of the given bit array, by hashing a user element.

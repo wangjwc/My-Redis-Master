@@ -34,7 +34,7 @@ public interface BitArray {
      * @return
      * @throws Exception
      */
-    boolean[] batchSet(long[] indices) throws Exception;
+    boolean[] batchSet(Long[] indices) throws Exception;
 
     /**
      * 如果指定bit为为1，返回true，否则返回false
@@ -42,5 +42,5 @@ public interface BitArray {
      * @return
      * @throws Exception
      */
-    boolean[] batchGet(long[] indices) throws Exception;
+    boolean[] batchGet(Long[] indices) throws Exception;
 }
