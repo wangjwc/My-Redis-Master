@@ -51,11 +51,6 @@ public class Lock {
             object = RedisPool.getResource().eval(script, 1, lockKey, clientId, String.valueOf(expireSecond * 1000));
         }
 
-        System.out.println("==>" + object);
-        if (null != object) {
-            System.out.println(object.getClass() + " ==> " + object);
-        }
-
         if (object instanceof Long) {
             return (long)object == 1L;
         }
