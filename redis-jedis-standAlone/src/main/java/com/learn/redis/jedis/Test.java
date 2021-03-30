@@ -8,8 +8,8 @@ import java.nio.charset.StandardCharsets;
  */
 public class Test {
     public static void main(String[] args){
-        print("1");
-        print("a");
+        // 14
+        System.out.println(5 & 2);
     }
 
     private static void print(String s) {

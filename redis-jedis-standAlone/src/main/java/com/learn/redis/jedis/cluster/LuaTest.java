@@ -1,18 +1,14 @@
-package com.learn.redis.jedis.lua.lock1;
+package com.learn.redis.jedis.cluster;
 
 import com.learn.redis.jedis.lua.DigestUtils;
-import com.learn.redis.jedis.pool.RedisPool;
 import org.springframework.util.StringUtils;
-import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisNoScriptException;
 
 /**
  * @author wangjingwang
  * @version v1.0
  */
-public class Lock {
-    //DigestUtils.sha1DigestAsHex(getScriptAsString());
-
+public class LuaTest {
     private static final String script = "local lockClientId = redis.call('GET', KEYS[1])\n" +
             "if lockClientId == ARGV[1] then\n" +
             "    redis.call('PEXPIRE', KEYS[1], ARGV[2])\n" +
@@ -45,10 +41,10 @@ public class Lock {
     public static boolean lock(String lockKey, String clientId, int expireSecond) {
         Object object = null;
         try {
-            object = RedisPool.getResource().evalsha(sha1, 1, lockKey, clientId, String.valueOf(expireSecond * 1000));
+            object = Cluster.instance.evalsha(sha1, 1, lockKey, clientId, String.valueOf(expireSecond * 1000));
         } catch (JedisNoScriptException noScriptExp) {
             System.out.println("no script");
-            object = RedisPool.getResource().eval(script, 1, lockKey, clientId, String.valueOf(expireSecond * 1000));
+            object = Cluster.instance.eval(script, 1, lockKey, clientId, String.valueOf(expireSecond * 1000));
         }
 
         if (object instanceof Long) {
@@ -58,24 +54,23 @@ public class Lock {
     }
 
     public static boolean unlock(String lockKey, String clientId) {
-        Jedis jedis = RedisPool.getResource();
-        String res = jedis.get(lockKey);
+        String res = Cluster.instance.get(lockKey);
         if (!StringUtils.hasText(res)) {
             return true;
         }
         if (res.equals(clientId)) {
-            return jedis.del(lockKey) > 0;
+            return Cluster.instance.del(lockKey) > 0;
         }
         throw new RuntimeException("You do not own lock at" + lockKey);
     }
 
     public static void main(String[] args){
-        System.out.println("lock 1: " + Lock.lock("test_lock", "client1", 60));
-        System.out.println("lock 2: " +Lock.lock("test_lock", "client2", 60));
+        System.out.println("lock 1: " + lock("test_lock", "client1", 60));
+        System.out.println("lock 2: " + lock("test_lock", "client2", 60));
 
-        System.out.println("unlock 1: " + Lock.unlock("test_lock", "client1"));
+        System.out.println("unlock 1: " + unlock("test_lock", "client1"));
 
-        System.out.println("lock 2: " + Lock.lock("test_lock", "client2", 60));
-        System.out.println("unlock 2: " + Lock.unlock("test_lock", "client2"));
+        System.out.println("lock 2: " + lock("test_lock", "client2", 60));
+        System.out.println("unlock 2: " + unlock("test_lock", "client2"));
     }
 }
