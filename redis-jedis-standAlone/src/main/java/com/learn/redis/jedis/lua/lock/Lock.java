@@ -7,6 +7,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisNoScriptException;
 
 /**
+ * 参考org.springframework.integration.redis.util.RedisLockRegistry
  * @author wangjingwang
  * @version v1.0
  */
